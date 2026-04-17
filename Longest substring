@@ -1,0 +1,25 @@
+import java.util.HashSet;
+
+class Solution {
+    public int lengthOfLongestSubstring(String s) {
+        int left = 0, right = 0, maxLen = 0;
+        HashSet<Character> set = new HashSet<>();
+
+        while (right < s.length()) {
+            char currentChar = s.charAt(right);
+            
+            // If we find a repeat, slide the left side of the window
+            while (set.contains(currentChar)) {
+                set.remove(s.charAt(left));
+                left++;
+            }
+            
+            // Add the new character and expand the right side
+            set.add(currentChar);
+            maxLen = Math.max(maxLen, right - left + 1);
+            right++;
+        }
+
+        return maxLen;
+    }
+}
