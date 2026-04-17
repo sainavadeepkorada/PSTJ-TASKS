@@ -1,0 +1,24 @@
+import java.util.*;
+
+class Solution {
+    public String[] sortPeople(String[] names, int[] heights) {
+        int n = names.length;
+        
+        // Use a TreeMap with reverse order to sort heights descending automatically
+        Map<Integer, String> map = new TreeMap<>(Collections.reverseOrder());
+        
+        // Fill the map
+        for (int i = 0; i < n; i++) {
+            map.put(heights[i], names[i]);
+        }
+        
+        // Reuse the names array (or create a new one) to store the results
+        String[] result = new String[n];
+        int index = 0;
+        for (int height : map.keySet()) {
+            result[index++] = map.get(height);
+        }
+        
+        return result;
+    }
+}
