@@ -1,0 +1,108 @@
+import java.io.*;
+import java.math.*;
+import java.security.*;
+import java.text.*;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.regex.*;
+
+class Result {
+
+    /*
+     * Complete the 'circularPalindromes' function below.
+     *
+     * The function is expected to return an INTEGER_ARRAY.
+     * The function accepts STRING s as parameter.
+     */
+
+    public static List<Integer> circularPalindromes(String s) {
+    // Write your code here
+int n = s.length();
+        if (n == 0) return new ArrayList<>();
+
+        // 1. Transform for Manacher's: "abc" -> "#a#b#c#"
+        char[] t = new char[2 * n + 1];
+        for (int i = 0; i < n; i++) {
+            t[2 * i] = '#';
+            t[2 * i + 1] = s.charAt(i);
+        }
+        t[2 * n] = '#';
+
+        // 2. Manacher's on the doubled string to cover all rotations
+        int m = 2 * n;
+        char[] doubledT = new char[2 * m + 1];
+        for (int i = 0; i < m; i++) {
+            doubledT[2 * i] = '#';
+            doubledT[2 * i + 1] = (i < n) ? s.charAt(i) : s.charAt(i - n);
+        }
+        doubledT[2 * m] = '#';
+
+        int[] p = runManacher(doubledT);
+        Integer[] results = new Integer[n];
+        
+        // 3. Sliding Window logic to find max palindrome for each rotation
+        // We use a simplified version of the range-max query for rotations
+        for (int k = 0; k < n; k++) {
+            int maxLen = 0;
+            int start = 2 * k;
+            int end = 2 * (k + n);
+            
+            // For each rotation, find max P[i] such that the palindrome stays in [start, end]
+            // Optimized search: we only check centers within the current N-window
+            for (int i = start; i <= end; i++) {
+                int radius = p[i];
+                // Trim radius if it exceeds rotation boundaries
+                int actualRadius = Math.min(radius, Math.min(i - start, end - i));
+                maxLen = Math.max(maxLen, actualRadius);
+            }
+            results[k] = maxLen;
+        }
+
+        return Arrays.asList(results);
+    }
+
+    private static int[] runManacher(char[] t) {
+        int n = t.length;
+        int[] p = new int[n];
+        int c = 0, r = 0;
+        for (int i = 0; i < n; i++) {
+            int mirror = 2 * c - i;
+            if (i < r) p[i] = Math.min(r - i, p[mirror]);
+            while (i + 1 + p[i] < n && i - 1 - p[i] >= 0 && t[i + 1 + p[i]] == t[i - 1 - p[i]]) {
+                p[i]++;
+            }
+            if (i + p[i] > r) {
+                c = i;
+                r = i + p[i];
+            }
+        }
+        return p;
+    }
+
+}
+
+public class Solution {
+    public static void main(String[] args) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(System.getenv("OUTPUT_PATH")));
+
+        int n = Integer.parseInt(bufferedReader.readLine().trim());
+
+        String s = bufferedReader.readLine();
+
+        List<Integer> result = Result.circularPalindromes(s);
+
+        for (int i = 0; i < result.size(); i++) {
+            bufferedWriter.write(String.valueOf(result.get(i)));
+
+            if (i != result.size() - 1) {
+                bufferedWriter.write("\n");
+            }
+        }
+
+        bufferedWriter.newLine();
+
+        bufferedReader.close();
+        bufferedWriter.close();
+    }
+}
