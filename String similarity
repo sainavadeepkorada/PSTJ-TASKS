@@ -1,0 +1,54 @@
+import java.io.*;
+import java.util.*;
+
+class Result {
+    /*
+     * Using the Z-Algorithm to find LCP in O(n) time.
+     */
+    public static long stringSimilarity(String s) {
+        int length = s.length(); // Changed 'n' to 'length' for clarity
+        int[] z = new int[length];
+        long totalSimilarity = length; // The string is always its own prefix
+        
+        int l = 0, r = 0;
+        for (int i = 1; i < length; i++) {
+            if (i <= r) {
+                z[i] = Math.min(r - i + 1, z[i - l]);
+            }
+            // Attempt to extend the match beyond the current window
+            while (i + z[i] < length && s.charAt(z[i]) == s.charAt(i + z[i])) {
+                z[i]++;
+            }
+            // Update the window [l, r]
+            if (i + z[i] - 1 > r) {
+                l = i;
+                r = i + z[i] - 1;
+            }
+            totalSimilarity += z[i];
+        }
+        
+        return totalSimilarity;
+    }
+}
+
+public class Solution {
+    public static void main(String[] args) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+        // Using System.out to avoid issues with OUTPUT_PATH environment variables
+        PrintWriter out = new PrintWriter(System.out);
+
+        int t = Integer.parseInt(bufferedReader.readLine().trim());
+
+        for (int tItr = 0; tItr < t; tItr++) {
+            String s = bufferedReader.readLine();
+
+            // Note: Changed type to long to match Result.stringSimilarity
+            long result = Result.stringSimilarity(s);
+
+            out.println(result);
+        }
+
+        bufferedReader.close();
+        out.close();
+    }
+}
