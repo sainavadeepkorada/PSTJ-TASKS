@@ -1,0 +1,30 @@
+class Solution {
+    public boolean repeatedSubstringPattern(String s) {
+        int n = s.length();
+        int[] z = new int[n];
+        int l = 0, r = 0;
+
+        // Standard Z-Algorithm to compute LCP of s and its suffixes
+        for (int i = 1; i < n; i++) {
+            if (i <= r) {
+                z[i] = Math.min(r - i + 1, z[i - l]);
+            }
+            while (i + z[i] < n && s.charAt(z[i]) == s.charAt(i + z[i])) {
+                z[i]++;
+            }
+            if (i + z[i] - 1 > r) {
+                l = i;
+                r = i + z[i] - 1;
+            }
+
+            // Check if the current index 'i' could be the start of the repeating unit
+            // 1. The suffix starting at i matches the prefix (z[i] == n - i)
+            // 2. The total length is divisible by the pattern length i
+            if (z[i] == n - i && n % i == 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
